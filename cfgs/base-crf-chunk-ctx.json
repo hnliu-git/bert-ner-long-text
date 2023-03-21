@@ -1,0 +1,19 @@
+{
+    "seed": 2022,
+    "exp_suffix": "",
+    "model_name": "xlm-roberta-base",
+    "batch_size": 16,
+    "epochs": 20,
+    "steps_show": 100,
+    "steps_warm": 0.003,
+    "lr": 2e-5,
+    "use_crf": true,
+    "doc_wise": true,
+    "use_chunk": true,
+    "stride": 0,
+    "use_ctx": true,
+    "debug": false,
+    "tag2id": {
+        "O": 0, "B-JT": 1, "I-JT": 2, "B-S": 3, "I-S": 4, "B-LOC": 5, "I-LOC": 6, "B-ORG": 7, "I-ORG": 8, "B-PHO": 9, "I-PHO": 10, "B-MAI": 11, "I-MAI": 12
+    }
+}
