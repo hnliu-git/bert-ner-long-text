@@ -120,7 +120,7 @@ else:
 
 if not config.debug:
     import wandb
-    wandb.init(project='bert_vac_ner', name=exp_name)
+    wandb.init(project='bert_ner', name=exp_name)
 
 trainer.train()
 
