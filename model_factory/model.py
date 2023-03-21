@@ -60,7 +60,7 @@ class BertNerModel(BertNerBaseModel):
             loss = loss_fct(logits.view(-1, self.config.num_labels), input_dict['labels'].view(-1))
             tags = torch.max(logits, 2)[1]
             if torch.cuda.is_available():
-                tags = tags.cuda()
+                tags = tags.cpu()
             tags = tags.numpy().tolist()
 
         return loss, tags
@@ -70,6 +70,7 @@ class BertNerChunkModel(BertNerBaseModel):
 
     def __init__(self, config):
         super().__init__(config)
+        self.embedding = self.model.get_input_embeddings()
     
     def forward(self, input_dict, ctx_embed=None):
         """
@@ -110,7 +111,7 @@ class BertNerChunkModel(BertNerBaseModel):
             loss = loss_fct(logits.view(-1, self.config.num_labels), input_dict['labels'].view(-1))
             tags = torch.max(logits, 2)[1]
             if torch.cuda.is_available():
-                tags = tags.cuda()
+                tags = tags.cpu()
             tags = tags.numpy().tolist()
         
         # ctx is the [CLS] output
