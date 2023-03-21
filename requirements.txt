@@ -1,0 +1,7 @@
+datasets==2.10.1
+evaluate==0.4.0
+huggingface-hub==0.10.1
+pytorch-crf==0.7.2
+transformers==4.23.1
+wandb==0.13.10
+seqeval==1.2.2
