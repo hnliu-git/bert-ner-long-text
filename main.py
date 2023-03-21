@@ -15,6 +15,7 @@ class GlobalConfig:
 
     def __init__(self, **cfgs) -> None:
         self.__dict__ = json.load(open(sys.argv[1]))
+        self.num_labels = len(self.tag2id)
 
 if len(sys.argv) < 2:
     print("Usage python main.py <cfg-path>")
@@ -23,7 +24,7 @@ if len(sys.argv) < 2:
 config = GlobalConfig()
 seed_everything(config.seed)
 
-exp_name = '%s-nl-epoch%d-%s'%(config.model_name, config.epochs, config.exp_suffix)
+exp_name = '%s-nl-epoch%d%s'%(config.model_name, config.epochs, config.exp_suffix)
 
 data_folder = 'data/'
 
@@ -55,7 +56,7 @@ if config.use_chunk and config.doc_wise:
         val_loaders,
         model,
     )
-if config.use_chunk and not config.doc_wise:
+elif config.use_chunk and not config.doc_wise:
     tokenized_dataset = dataset.map(lambda x: tokenize_and_align_labels_and_chunk(x, tokenizer, config.stride))
     train_loader = NerChunkIterDataset(tokenizer, tokenized_dataset, 'train', config).build_dataloader()
     val_loader = NerChunkIterDataset(tokenizer, tokenized_dataset, 'validation', config).build_dataloader()

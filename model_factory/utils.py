@@ -62,8 +62,9 @@ def tokenize_and_align_labels_and_chunk(example, tokenizer, stride=0):
             if word_idx is None:
                 label_ids.append(-100)
             # if still in the overlapping scope, set to invalid labels
-            elif i > 0 and j <= stride:
-                label_ids.append(-100)
+            # TODO stride is not working with CRF with this setting
+            # elif i > 0 and j <= stride:
+                # label_ids.append(-100)
             elif word_idx != previous_word_idx:
                 label_ids.append(label[word_idx])
             else:

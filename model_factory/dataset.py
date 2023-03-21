@@ -238,7 +238,6 @@ class NerChunkIterDataset(IterableDataset):
             self,
             batch_size=self.config.batch_size,
             collate_fn=self.collate_fn,
-            shuffle=self.split == 'train'
         )
         
         return dataloader 

@@ -51,12 +51,12 @@ class TrainerBase:
         )
         scheduler = get_linear_schedule_with_warmup(
             optimizer_model,
-            num_warmup_steps=int(self.config.warmup_steps * self.config.train_steps),
+            num_warmup_steps=int(self.config.steps_warm * self.config.train_steps),
             num_training_steps=self.config.train_steps
         )
         scheduler_crf = get_linear_schedule_with_warmup(
             optimizer_crf,
-            num_warmup_steps=int(self.config.warmup_steps * self.config.train_steps),
+            num_warmup_steps=int(self.config.steps_warm * self.config.train_steps),
             num_training_steps=self.config.train_steps
         )
         
@@ -82,7 +82,7 @@ class TrainerBase:
 
         scheduler = get_linear_schedule_with_warmup(
             optimizer,
-            num_warmup_steps=int(self.config.warmup_steps * self.config.train_steps),
+            num_warmup_steps=int(self.config.steps_warm * self.config.train_steps),
             num_training_steps=self.config.train_steps
         )
 
@@ -107,9 +107,9 @@ class TrainerBase:
         for key in results.keys():
             if type(results[key]) == dict:
                 for metric in ['precision', 'recall', 'f1']:
-                    performances['eval/%s/%s'%(key, metric)] = results[key][metric]
+                    performances['%s/%s'%(key, metric)] = results[key][metric]
             else:
-                performances['eval/%s'%(key)] = results[key]
+                performances['%s'%(key)] = results[key]
         
         return performances
 
@@ -157,11 +157,6 @@ class Trainer(TrainerBase):
                     
                 pbar.update(n=1) 
                 
-    # if dev_f1 > best_f1:
-    #     best_f1 = dev_f1
-    #     torch.save(model, f'{config.saved_model_path}/test.pth')
-    #     print('save best model   f1:%.6f'%best_f1) 
-
     def evaluation(self, val_loader):
 
         pbar = tqdm(total=len(val_loader))
@@ -238,11 +233,6 @@ class ChunkTrainer(TrainerBase):
                                 wandb.log({'eval/loss': loss})
                                 wandb.log({'eval/' + k: v for k, v in performance.items()})
                         pbar.update(n=1) 
-
-    # if dev_f1 > best_f1:
-    #     best_f1 = dev_f1
-    #     torch.save(model, f'{config.saved_model_path}/test.pth')
-    #     print('save best model   f1:%.6f'%best_f1) 
 
     def evaluation(self, val_loader):
 

@@ -3,7 +3,7 @@ import torch
 
 from torch import nn 
 from torchcrf import CRF
-from transformers import XLMRobertaModel
+from transformers import AutoModel
 
 
 class BertNerBaseModel(nn.Module):
@@ -11,7 +11,7 @@ class BertNerBaseModel(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.model = XLMRobertaModel.from_pretrained(
+        self.model = AutoModel.from_pretrained(
             config.model_name
         )
         self.dropout = nn.Dropout(0.1)
@@ -53,7 +53,7 @@ class BertNerModel(BertNerBaseModel):
             masks = input_dict['crf_mask'][:, 1:]
             # [SEP] is masked
             labels = (input_dict['labels'] * input_dict['crf_mask'])[:, 1:]
-            loss = self.crf(emissions, labels, masks)
+            loss = -self.crf(emissions, labels, masks)
             tags = [[0] + tag for tag in self.crf.decode(emissions)]
         else:
             loss_fct = nn.CrossEntropyLoss()
@@ -104,7 +104,7 @@ class BertNerChunkModel(BertNerBaseModel):
             masks = input_dict['crf_mask'][:, 1:]
             # [SEP] is masked
             labels = (input_dict['labels'] * input_dict['crf_mask'])[:, 1:]
-            loss = self.crf(emissions, labels, masks)
+            loss = -self.crf(emissions, labels, masks)
             tags = [[0] + tag for tag in self.crf.decode(emissions)]
         else:
             loss_fct = nn.CrossEntropyLoss()
