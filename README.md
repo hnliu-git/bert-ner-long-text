@@ -14,9 +14,14 @@ python main.py
 ```
 
 ## Plan
-- [ ] Refine README
-- [ ] Add demo/public data
+- [ ] Train with main entity and use smaller models and report own evaluation module metrics
 - [ ] Add evaluation results
+- [ ] Refine README
+https://github.com/mim-solutions/bert_for_longer_texts
 - [ ] Add functional tests
+- [ ] Smart chunking implementation
+- [ ] Compare with Hi-Transformer and LongTransformer
+- [ ] Publish your results
+https://github.com/google-research/bert/issues/27
 
 Welcome to add any MRs.

@@ -5,31 +5,37 @@ from transformers import AutoTokenizer
 from utils import seed_everything
 
 from model_factory.trainer import Trainer, ChunkTrainer
-from model_factory.dataset import TKDataset, TKChunkDataset
-from model_factory.model import BertTkModel, BertChunkTkModel
+from model_factory.dataset import NerDataset, NerChunkDataset
+from model_factory.model import BertNerModel, BertNerChunkModel
 from model_factory.utils import tokenize_and_align_labels, tokenize_and_align_labels_and_chunk
 
 import datasets
 
 def compute_metrics(predictions, labels):
     # Remove ignored index (special tokens)
+    id2tag = list(vac_core_dict.keys())
+
     true_predictions = [
-        [p for (p, l) in zip(prediction, label) if l != -100]
+        [id2tag[p] for (p, l) in zip(prediction, label) if l != -100]
         for prediction, label in zip(predictions, labels)
     ]
     true_labels = [
-        [l for (p, l) in zip(prediction, label) if l != -100]
+        [id2tag[l] for (p, l) in zip(prediction, label) if l != -100]
         for prediction, label in zip(predictions, labels)
     ]
 
     results = seqeval.compute(predictions=true_predictions, references=true_labels)
+    performances = {}
 
-    return {
-         "precision": results["overall_precision"],
-         "recall": results["overall_recall"],
-         "f1": results["overall_f1"],
-         "accuracy": results["overall_accuracy"],
-     }
+    for key in results.keys():
+        if type(results[key]) == dict:
+            for metric in ['precision', 'recall', 'f1']:
+                performances['eval/%s/%s'(key, metric)] = results[key][metric]
+        else:
+            performances['eval/%s'(key)] = results[key]
+    
+    return performances
+
 
 class GlobalConfig:   
     def __init__(self):
@@ -37,7 +43,7 @@ class GlobalConfig:
         self.seed = 2022
         # model setting
         self.model_name = 'xlm-roberta-base'
-        self.num_labels = len(vac_tags_dict)
+        self.num_labels = len(vac_core_dict)
         # data setting
         self.max_length = 512
         self.batch_size = 16
@@ -56,6 +62,8 @@ class GlobalConfig:
         # If use_chunk, decide use the context embedding or not
         self.use_ctx = False 
         self.debug = True
+
+vac_core_dict = {'O': 0, 'B-JT': 1, 'I-JT': 2, 'B-S': 3, 'I-S': 4, 'B-LOC': 5, 'I-LOC': 6, 'B-ORG': 7, 'I-ORG': 8, 'B-PHO': 9, 'I-PHO': 10, 'B-MAI': 11, 'I-MAI': 12}
 
 config = GlobalConfig()
 seed_everything(config.seed)
@@ -81,11 +89,11 @@ seqeval = evaluate.load('seqeval')
 
 if config.use_chunk:
     tokenized_dataset = dataset.map(lambda x: tokenize_and_align_labels_and_chunk(x, tokenizer, config.stride))
-    train_loaders = TKChunkDataset(tokenizer, tokenized_dataset, 'train', config).build_dataloaders()
-    val_loaders = TKChunkDataset(tokenizer, tokenized_dataset, 'validation', config).build_dataloaders()
-    test_loader = TKChunkDataset(tokenizer, tokenized_dataset, 'test', config).build_dataloaders()
+    train_loaders = NerChunkDataset(tokenizer, tokenized_dataset, 'train', config).build_dataloaders()
+    val_loaders = NerChunkDataset(tokenizer, tokenized_dataset, 'validation', config).build_dataloaders()
+    test_loader = NerChunkDataset(tokenizer, tokenized_dataset, 'test', config).build_dataloaders()
 
-    model = BertChunkTkModel(config)
+    model = BertNerChunkModel(config)
 
     trainer = ChunkTrainer(
         config,
@@ -96,11 +104,11 @@ if config.use_chunk:
     )
 else:
     tokenized_dataset = dataset.map(lambda x: tokenize_and_align_labels(x, tokenizer), batched=True)
-    train_loader = TKDataset(tokenizer, tokenized_dataset, 'train', config).build_dataloader()
-    val_loader = TKDataset(tokenizer, tokenized_dataset, 'validation', config).build_dataloader()
-    test_loader = TKDataset(tokenizer, tokenized_dataset, 'test', config).build_dataloader()
+    train_loader = NerDataset(tokenizer, tokenized_dataset, 'train', config).build_dataloader()
+    val_loader = NerDataset(tokenizer, tokenized_dataset, 'validation', config).build_dataloader()
+    test_loader = NerDataset(tokenizer, tokenized_dataset, 'test', config).build_dataloader()
 
-    model = BertTkModel(config)
+    model = BertNerModel(config)
 
     trainer = Trainer(
         config,

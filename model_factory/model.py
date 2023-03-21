@@ -6,7 +6,7 @@ from torchcrf import CRF
 from transformers import XLMRobertaModel
 
 
-class BertTKBaseModel(nn.Module):
+class BertNerBaseModel(nn.Module):
     
     def __init__(self, config):
         super().__init__()
@@ -27,7 +27,7 @@ class BertTKBaseModel(nn.Module):
         if torch.cuda.is_available():
             self.cuda()
 
-class BertTkModel(BertTKBaseModel):
+class BertNerModel(BertNerBaseModel):
 
     def __init__(self, config):
         super().__init__(config)
@@ -66,7 +66,7 @@ class BertTkModel(BertTKBaseModel):
         return loss, tags
 
 
-class BertChunkTkModel(BertTKBaseModel):
+class BertNerChunkModel(BertNerBaseModel):
 
     def __init__(self, config):
         super().__init__(config)

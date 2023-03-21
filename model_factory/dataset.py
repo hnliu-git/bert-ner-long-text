@@ -3,7 +3,7 @@ import torch
 from datasets import Dataset as HgDataset
 from torch.utils.data import IterableDataset, Dataset, DataLoader 
 
-class TKDataset(Dataset):
+class NerDataset(Dataset):
 
     def __init__(self, tokenizer, dataset, split, config) -> None:
         """
@@ -71,7 +71,7 @@ class TKDataset(Dataset):
         
         return dataloader
 
-class TKChunkData(Dataset):
+class NerChunkData(Dataset):
 
     def __init__(self, dataset) -> None:
         super().__init__()
@@ -84,7 +84,7 @@ class TKChunkData(Dataset):
         return self.dataset[index]
 
 
-class TKChunkDataset:
+class NerChunkDataset:
 
     def __init__(self, tokenizer, dataset, split, config) -> None:
         self.dataset = dataset[split]
@@ -115,7 +115,7 @@ class TKChunkDataset:
         for num in num2sets.keys():
             dataset = HgDataset.from_list(num2sets[num])
             dataloaders.append((num, DataLoader(
-                TKChunkData(dataset),
+                NerChunkData(dataset),
                 batch_size=self.config.batch_size,
                 collate_fn=self.collate_fn,
                 shuffle=self.split == 'train'
@@ -167,7 +167,7 @@ class TKChunkDataset:
 
         return batches 
     
-class TKChunkIterDataset(IterableDataset):
+class NerChunkIterDataset(IterableDataset):
     """
     Differ from the one above, this dataset simply iterate over all the chunks
     Same funcs as TKDataset except for the __iter__ func
